@@ -13,7 +13,7 @@ import os
 
 parser = ArgumentParser(description=__doc__)
 
-def main(args) -> int:
+def main(args=sys.argv[1:]) -> int:
 
     parser.add_argument("input_pdf_name", help="The name of the input PDF file")
 
@@ -166,4 +166,4 @@ def main(args) -> int:
     '''.format(output_file_stats.st_size, len(writer.pages)))
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))
+    sys.exit(ma))
