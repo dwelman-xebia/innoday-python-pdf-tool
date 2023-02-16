@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 
 from commands.compress import compress_page
 from commands.remove_images import remove_images
-from commands.encrypt import encrypt
+from commands.encryption import encrypt, decrypt
 
 import os
 
@@ -35,6 +35,12 @@ def main():
         help="The key to be used to encrypt the PDF file",
         required=False,
     )
+    parser.add_argument(
+        "-d", "--decrypt",
+        dest="decrypt_key",
+        help="The key to be used to decrypt the PDF file",
+        required=False,
+    )
 
     input_parameters, unknown_input_parameters = parser.parse_known_args()
 
@@ -63,6 +69,12 @@ def main():
         should_encrypt = True
         print("- Encrypting with key: {}".format(encryption_key))
 
+    decryption_key = ""
+    should_decrypt = False
+    if input_parameters.decrypt_key is not None:
+        decryption_key = input_parameters.decrypt_key
+        should_decrypt = True
+        print("- Decryptying with key: {}".format(decryption_key))
     
     if not name.endswith(".pdf"):
         print("File must end with '.pdf' extension")
@@ -72,7 +84,11 @@ def main():
         output_name += ".pdf"
 
     reader = PdfReader(name)
-    
+
+    if should_decrypt:
+        if reader.is_encrypted:
+            reader = decrypt(reader, decryption_key)
+
     input_file_stats = os.stat(name)
     print('''Input file stats:
         Size in bytes: {}
@@ -96,7 +112,6 @@ def main():
         writer.write(f)
 
     output_file_stats = os.stat(output_name)
-    reader = PdfReader(name)
     print('''Input file stats:
         Size in bytes: {}
         Pages: {}
