@@ -24,4 +24,7 @@ pages: setup
 remove: setup 
 	python3 -m pdftool.main testdata/with-images.pdf -o output/remove.pdf -r 1-2,4
 
+search: setup
+	python3 -m pdftool.main ./testdata/search.pdf -o output/search_output.pdf -s "lorem"
+
 all: cleanup setup rotate merge encrypt decrypt pages remove
