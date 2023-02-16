@@ -8,6 +8,7 @@ from pdftool.remove_images import remove_images
 from pdftool.encryption import encrypt, decrypt
 from pdftool.merge import merge
 from pdftool.split import range_to_page_indices
+from pdftool.rotate import rotate
 from pdftool.search import search,split_sentences
 
 import os
@@ -51,6 +52,15 @@ def main(args=sys.argv[1:]) -> int:
         dest="merge_file",
         help='''The name of a file to be merged into the input file in the format FILE_NAME:POSITION:PAGES, POSITION can be excluded or set to -1 to append to the end, specific PAGES can be specified (e.g. 1,2,6-10)''',
         nargs="+",
+        action="append",
+        required=False,
+    )
+    parser.add_argument(
+        "-rot", "--rotate",
+        dest="rotate_pages",
+        help="Rotates the given range of pages by the angle in the formate RANGE:ANGLE (e.g. 1,2,4-5:90), positive for clockwise negative for counter-clockwise",
+        nargs="+",
+        action="append",
         required=False,
     )
     parser.add_argument(
@@ -110,8 +120,7 @@ def main(args=sys.argv[1:]) -> int:
     merge_files = []
     if input_parameters.merge_file:
         for file in input_parameters.merge_file:
-            x = file.split(':')
-            print(x)
+            x = file[0].split(':')
             file_name = x[0]
             if not file_name.endswith(".pdf"):
                 print("{} must end with '.pdf' extension".format(file_name))
@@ -124,6 +133,22 @@ def main(args=sys.argv[1:]) -> int:
                 pages = list(range_to_page_indices(x[2]))
             print("- Merging file: {} {}".format(file_name, "at position {}".format(pos) if pos > -1 else ""))
             merge_files.append((file_name, pos, pages))
+
+    rotate_pages = {}
+    if input_parameters.rotate_pages:
+        for rot in input_parameters.rotate_pages:
+            x = rot[0].split(':')
+            if len(x) < 2:
+                print("{} must be in the format RANGE:ANGLE".format(x))
+                return 1
+            pages = list(range_to_page_indices(x[0]))
+            angle = int(x[1])
+            if abs(angle) % 90 != 0:
+                print("Angle must be a multiple of 90")
+                return 1
+            print("- Rotating page/s {} by {}".format(pages, "{} degrees clockwise".format(angle) if angle > 0 else "{} degrees counter-clockwise".format(abs(angle))))
+            for page in pages:
+                rotate_pages[page] = angle
     
     remove_range = None
     if input_parameters.remove_pages:
@@ -170,6 +195,8 @@ def main(args=sys.argv[1:]) -> int:
             continue
         if should_compress:
             page = compress_page(page)
+        if rotate_pages and index in rotate_pages.keys():
+            page = rotate(page, rotate_pages[index])
         writer.add_page(page)
 
     for file, pos, pages in merge_files:
