@@ -2,6 +2,7 @@ from pypdf import PdfReader, PdfWriter
 from argparse import ArgumentParser
 
 from compress.compress import compress_page
+from remove_images.remove_images import remove_images
 
 import os
 
@@ -22,6 +23,11 @@ def main():
         dest="should_compress",
         action="store_true"
     )
+    parser.add_argument(
+        "-ri", "--remove_images",
+        dest="should_remove_images",
+        action="store_true"
+    )
 
     input_parameters, unknown_input_parameters = parser.parse_known_args()
 
@@ -36,6 +42,12 @@ def main():
         should_compress = input_parameters.should_compress
         if should_compress is True:
             print("- Compression Enabled")
+    
+    should_remove_images = False
+    if input_parameters.should_remove_images is not None:
+        should_remove_images = input_parameters.should_remove_images
+        if should_remove_images is True:
+            print("- Remove Images Enabled")
     
     if not name.endswith(".pdf"):
         print("File must end with '.pdf' extension")
@@ -58,6 +70,9 @@ def main():
         if should_compress:
             page = compress_page(page)
         writer.add_page(page)
+
+    if should_remove_images:
+       writer = remove_images(writer)
 
     with open("{}".format(output_name), "wb") as f:
         writer.write(f)
