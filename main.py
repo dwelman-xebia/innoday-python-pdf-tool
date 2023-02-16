@@ -20,7 +20,13 @@ def main():
     output_name = output_name = name + "-output"
     if input_parameters.output_pdf_name is not None:
         output_name = input_parameters.output_pdf_name
+    
+    if not name.endswith(".pdf"):
+        print("File must end with '.pdf' extension")
+        exit(-1)
 
+    if not output_name.endswith(".pdf"):
+        output_name += ".pdf"
 
     reader = PdfReader(name)
     number_of_pages = len(reader.pages)
@@ -29,7 +35,6 @@ def main():
 
     for page in reader.pages:
         writer.add_page(page)
-
 
     with open("{}".format(output_name), "wb") as f:
         writer.write(f)
