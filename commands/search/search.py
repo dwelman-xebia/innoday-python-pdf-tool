@@ -15,5 +15,6 @@ def search(search_term: str, content: str):
 
 def split_sentences(st):
     st = st.strip() + '. '
-    sentences = re.split(r'([.?!][.?!\s])+', st)
-    return sentences[:-1]
+    pat = re.compile(r'([A-Z][^\.!?]*[\.!?])', re.M)
+    sentences = pat.findall(st)
+    return sentences
