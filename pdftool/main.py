@@ -59,6 +59,12 @@ def main(args=sys.argv[1:]) -> int:
         help="Extract pages (e.g. '2,3-6')",
         required=False,
     )
+    parser.add_argument(
+        "-r", "--remove",
+        dest="remove_pages",
+        help="Remove pages (e.g. '2,3-6')",
+        required=False,
+    )
 
     input_parameters, _unknown_input_parameters = parser.parse_known_args(args)
 
@@ -112,10 +118,20 @@ def main(args=sys.argv[1:]) -> int:
             print("- Merging file: {} {}".format(file_name, "at position {}".format(pos) if pos > -1 else ""))
             merge_files.append((file_name, pos, pages))
     
+    remove_range = None
+    if input_parameters.remove_pages:
+        if merge_files:
+            print("Removing pages is incompatible with merging pages")
+            return 1
+        remove_range = list(range_to_page_indices(input_parameters.remove_pages))
+
     page_range = None
     if input_parameters.pages:
         if merge_files:
             print("Selecting pages is incompatible with merging pages")
+            return 1
+        if remove_range:
+            print("Selecting pages is incompatible with removing pages")
             return 1
         page_range = list(range_to_page_indices(input_parameters.pages))
         
@@ -142,6 +158,8 @@ def main(args=sys.argv[1:]) -> int:
 
     for index, page in enumerate(reader.pages):
         if page_range and index not in page_range:
+            continue
+        if remove_range and index in remove_range:
             continue
         if should_compress:
             page = compress_page(page)
