@@ -8,6 +8,7 @@ from pdftool.remove_images import remove_images
 from pdftool.encryption import encrypt, decrypt
 from pdftool.merge import merge
 from pdftool.split import range_to_page_indices
+from pdftool.search import search,split_sentences
 
 import os
 
@@ -50,6 +51,12 @@ def main(args=sys.argv[1:]) -> int:
         dest="merge_file",
         help='''The name of a file to be merged into the input file in the format FILE_NAME:POSITION:PAGES, POSITION can be excluded or set to -1 to append to the end, specific PAGES can be specified (e.g. 1,2,6-10)''',
         nargs="+",
+        required=False,
+    )
+    parser.add_argument(
+        "-s", "--search",
+        dest="search_term",
+        help="should search the given text and return the sentences",
         required=False,
     )
 
@@ -182,6 +189,13 @@ def main(args=sys.argv[1:]) -> int:
         Size in bytes: {}
         Pages: {}
     '''.format(output_file_stats.st_size, len(writer.pages)))
+
+    if input_parameters.search_term:
+        content = " ".join(page.extract_text().strip() for page in reader.pages)
+        content = ' '.join(content.split())
+        print('\n'.join(search(input_parameters.search_term,content)))
+
+
 
 if __name__ == "__main__":
     sys.exit(main())

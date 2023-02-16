@@ -1,14 +1,4 @@
-from typing import List
-
 from pdftool.search import search
-from pypdf import PdfReader
-
-
-def read_content(pdf_filepath: str) -> List[str]:
-    reader = PdfReader(pdf_filepath)
-    content = " ".join(page.extract_text().strip() for page in reader.pages)
-    content = ' '.join(content.split())
-    return content
 
 
 def test_search():
@@ -24,7 +14,7 @@ def test_insufficient_search_term_length():
 
     result = search("s", sentence)
 
-    assert result == "Insufficient search-term length, minimum two characters!"
+    assert result == ["Insufficient search-term length, minimum two characters!"]
 
 
 def test_filter_for_all_Is():
