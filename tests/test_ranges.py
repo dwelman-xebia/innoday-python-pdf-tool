@@ -16,3 +16,7 @@ def test_page_range():
 
     assert indices == [2,3,4]
 
+def test_one_page_and_page_range():
+    indices = list(range_to_page_indices("1,3-5"))
+
+    assert indices == [0,2,3,4]

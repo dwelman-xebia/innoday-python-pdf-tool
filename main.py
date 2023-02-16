@@ -5,6 +5,7 @@ from commands.compress import compress_page
 from commands.remove_images import remove_images
 from commands.encryption import encrypt, decrypt
 from commands.merge import merge
+from commands.split import range_to_page_indices
 
 import os
 
@@ -45,7 +46,7 @@ def main():
     parser.add_argument(
         "-m", "--merge",
         dest="merge_file",
-        help='''The name of a file to be appended to the end of the input PDF in the format: FILE_NAME:POS, POS can be excluded or set to -1 to append''',
+        help='''The name of a file to be appended to the end of the input PDF in the format: FILE_NAME:POS:PAGES, POS can be excluded or set to -1 to append, PAGES can be provided as comma separated numbers and ranges with a dash e.g. 1,2,6-10''',
         nargs="+",
         required=False,
     )
@@ -96,8 +97,11 @@ def main():
             pos = -1
             if len(x) > 1:
                 pos = int(x[1])
+            pages = []
+            if len(x) > 2:
+                pages = list(range_to_page_indices(x[2]))
             print("- Merging file: {} {}".format(file_name, "at position {}".format(pos) if pos > -1 else ""))
-            merge_files.append((file_name, pos))
+            merge_files.append((file_name, pos, pages))
     
     if not name.endswith(".pdf"):
         print("File must end with '.pdf' extension")
@@ -125,8 +129,8 @@ def main():
             page = compress_page(page)
         writer.add_page(page)
 
-    for file, pos in merge_files:
-        writer = merge(writer, file, pos)
+    for file, pos, pages in merge_files:
+        writer = merge(writer, file, pos, pages)
 
     if should_remove_images:
         writer = remove_images(writer)
