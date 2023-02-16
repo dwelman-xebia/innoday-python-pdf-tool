@@ -12,7 +12,7 @@ def read_content(pdf_filepath: str) -> List[str]:
 
 
 def test_search():
-    sentence = "The man walks. I am a nonsesne other sentence?"
+    sentence = "The man walks. I am a nonsense other sentence?"
 
     result = search("man walks", sentence)
 
