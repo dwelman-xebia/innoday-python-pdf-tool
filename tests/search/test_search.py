@@ -1,5 +1,6 @@
-from search.search import load_file
+from search.search import read_content
 
 
 def test_load():
-    load_file()
+    read_content()
+
