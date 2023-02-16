@@ -55,37 +55,37 @@ def main():
     name = input_parameters.input_pdf_name
     output_name = output_name = name + "-output"
 
-    if input_parameters.output_pdf_name is not None:
+    if input_parameters.output_pdf_name:
         output_name = input_parameters.output_pdf_name
 
     should_compress = False
-    if input_parameters.should_compress is not None:
+    if input_parameters.should_compress:
         should_compress = input_parameters.should_compress
         if should_compress is True:
             print("- Compression Enabled")
     
     should_remove_images = False
-    if input_parameters.should_remove_images is not None:
+    if input_parameters.should_remove_images:
         should_remove_images = input_parameters.should_remove_images
         if should_remove_images is True:
             print("- Remove Images Enabled")
 
     encryption_key = ""
     should_encrypt = False
-    if input_parameters.encrypt_key is not None:
+    if input_parameters.encrypt_key:
         encryption_key = input_parameters.encrypt_key
         should_encrypt = True
         print("- Encrypting with key: {}".format(encryption_key))
 
     decryption_key = ""
     should_decrypt = False
-    if input_parameters.decrypt_key is not None:
+    if input_parameters.decrypt_key:
         decryption_key = input_parameters.decrypt_key
         should_decrypt = True
         print("- Decryptying with key: {}".format(decryption_key))
 
     merge_files = []
-    if input_parameters.merge_file is not None:
+    if input_parameters.merge_file:
         for file in input_parameters.merge_file:
             x = file.split(':')
             print(x)
