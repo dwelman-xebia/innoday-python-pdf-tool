@@ -2,7 +2,7 @@ from pdftool.search import search
 
 
 def test_search():
-    sentence = "The man walks. I am a nonsesne other sentence?"
+    sentence = "The man walks. I am a nonsense other sentence?"
 
     result = search("man walks", sentence)
 
