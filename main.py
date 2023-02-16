@@ -4,6 +4,7 @@ from argparse import ArgumentParser
 from commands.compress import compress_page
 from commands.remove_images import remove_images
 from commands.encryption import encrypt, decrypt
+from commands.merge import merge
 
 import os
 
@@ -41,40 +42,62 @@ def main():
         help="The key to be used to decrypt the PDF file",
         required=False,
     )
+    parser.add_argument(
+        "-m", "--merge",
+        dest="merge_file",
+        help='''The name of a file to be appended to the end of the input PDF in the format: FILE_NAME:POS, POS can be excluded or set to -1 to append''',
+        nargs="+",
+        required=False,
+    )
 
     input_parameters, unknown_input_parameters = parser.parse_known_args()
 
     name = input_parameters.input_pdf_name
     output_name = output_name = name + "-output"
 
-    if input_parameters.output_pdf_name is not None:
+    if input_parameters.output_pdf_name:
         output_name = input_parameters.output_pdf_name
 
     should_compress = False
-    if input_parameters.should_compress is not None:
+    if input_parameters.should_compress:
         should_compress = input_parameters.should_compress
         if should_compress is True:
             print("- Compression Enabled")
     
     should_remove_images = False
-    if input_parameters.should_remove_images is not None:
+    if input_parameters.should_remove_images:
         should_remove_images = input_parameters.should_remove_images
         if should_remove_images is True:
             print("- Remove Images Enabled")
 
     encryption_key = ""
     should_encrypt = False
-    if input_parameters.encrypt_key is not None:
+    if input_parameters.encrypt_key:
         encryption_key = input_parameters.encrypt_key
         should_encrypt = True
         print("- Encrypting with key: {}".format(encryption_key))
 
     decryption_key = ""
     should_decrypt = False
-    if input_parameters.decrypt_key is not None:
+    if input_parameters.decrypt_key:
         decryption_key = input_parameters.decrypt_key
         should_decrypt = True
         print("- Decryptying with key: {}".format(decryption_key))
+
+    merge_files = []
+    if input_parameters.merge_file:
+        for file in input_parameters.merge_file:
+            x = file.split(':')
+            print(x)
+            file_name = x[0]
+            if not file_name.endswith(".pdf"):
+                print("{} must end with '.pdf' extension".format(file_name))
+                exit(-1)
+            pos = -1
+            if len(x) > 1:
+                pos = int(x[1])
+            print("- Merging file: {} {}".format(file_name, "at position {}".format(pos) if pos > -1 else ""))
+            merge_files.append((file_name, pos))
     
     if not name.endswith(".pdf"):
         print("File must end with '.pdf' extension")
@@ -102,8 +125,11 @@ def main():
             page = compress_page(page)
         writer.add_page(page)
 
+    for file, pos in merge_files:
+        writer = merge(writer, file, pos)
+
     if should_remove_images:
-       writer = remove_images(writer)
+        writer = remove_images(writer)
 
     if should_encrypt:
         writer = encrypt(writer, encryption_key)
@@ -115,7 +141,7 @@ def main():
     print('''Input file stats:
         Size in bytes: {}
         Pages: {}
-    '''.format(output_file_stats.st_size, len(reader.pages)))
+    '''.format(output_file_stats.st_size, len(writer.pages)))
 
 if __name__ == "__main__":
     main()
