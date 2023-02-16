@@ -1,8 +1,22 @@
 from PyPDF2 import PdfReader, PdfWriter
-import sys
+from argparse import ArgumentParser
+
+parser = ArgumentParser(description=__doc__)
 
 def main():
-    name = "mypdf.pdf"
+
+    parser.add_argument(
+        "-n",
+        dest="pdf_name",
+        help="PDF Name",
+        required=True,
+    )
+
+    input_parameters, unknown_input_parameters = parser.parse_known_args()
+
+    name = input_parameters.pdf_name
+
+    print("-n: {}".format(name))
 
     reader = PdfReader(name)
     number_of_pages = len(reader.pages)
