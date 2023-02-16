@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "innoday-python-pdf"
+version = "0.1.0"
+description = ""
+authors = ["David Welman <dwelman@xebia.com>"]
+readme = "README.md"
+#packages = [{include = "innoday_python_pdf"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pycryptodome = "^3.17"
+pypdf = "^3.4.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
