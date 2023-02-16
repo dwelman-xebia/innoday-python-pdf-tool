@@ -5,18 +5,22 @@ parser = ArgumentParser(description=__doc__)
 
 def main():
 
+    parser.add_argument("input_pdf_name", help="The name of the input PDF file")
+
     parser.add_argument(
-        "-n",
-        dest="pdf_name",
-        help="PDF Name",
-        required=True,
+        "-o", "--output",
+        dest="output_pdf_name",
+        help="The name for the PDF output file",
+        required=False,
     )
 
     input_parameters, unknown_input_parameters = parser.parse_known_args()
 
-    name = input_parameters.pdf_name
+    name = input_parameters.input_pdf_name
+    output_name = output_name = name + "-output"
+    if input_parameters.output_pdf_name is not None:
+        output_name = input_parameters.output_pdf_name
 
-    print("-n: {}".format(name))
 
     reader = PdfReader(name)
     number_of_pages = len(reader.pages)
@@ -26,7 +30,8 @@ def main():
     for page in reader.pages:
         writer.add_page(page)
 
-    with open("{}-decrypted.pdf".format(name), "wb") as f:
+
+    with open("{}".format(output_name), "wb") as f:
         writer.write(f)
 
 if __name__ == "__main__":
