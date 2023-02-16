@@ -48,7 +48,7 @@ def main() -> int:
     parser.add_argument(
         "-m", "--merge",
         dest="merge_file",
-        help='''The name of a file to be appended to the end of the input PDF in the format: FILE_NAME:POS:PAGES, POS can be excluded or set to -1 to append, PAGES can be provided as comma separated numbers and ranges with a dash e.g. 1,2,6-10''',
+        help='''The name of a file to be merged into the input file in the format FILE_NAME:POSITION:PAGES, POSITION can be excluded or set to -1 to append to the end, specific PAGES can be specified (e.g. 1,2,6-10)''',
         nargs="+",
         required=False,
     )
