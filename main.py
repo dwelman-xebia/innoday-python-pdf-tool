@@ -1,9 +1,9 @@
 from pypdf import PdfReader, PdfWriter
 from argparse import ArgumentParser
 
-from compress.compress import compress_page
-from remove_images.remove_images import remove_images
-from encrypt.encrypt import encrypt
+from commands.compress import compress_page
+from commands.remove_images import remove_images
+from commands.encrypt import encrypt
 
 import os
 
