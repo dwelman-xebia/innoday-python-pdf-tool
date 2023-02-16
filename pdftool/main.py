@@ -8,7 +8,7 @@ from pdftool.remove_images import remove_images
 from pdftool.encryption import encrypt, decrypt
 from pdftool.merge import merge
 from pdftool.split import range_to_page_indices
-from pdftool.search import search,split_sentences
+from pdftool.search import search
 
 import os
 
