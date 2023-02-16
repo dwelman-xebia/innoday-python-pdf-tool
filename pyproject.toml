@@ -4,7 +4,6 @@ version = "0.1.0"
 description = ""
 authors = ["David Welman <dwelman@xebia.com>"]
 readme = "README.md"
-#packages = [{include = "innoday_python_pdf"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
