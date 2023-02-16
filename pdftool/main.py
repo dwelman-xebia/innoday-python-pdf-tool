@@ -166,4 +166,4 @@ def main(args=sys.argv[1:]) -> int:
     '''.format(output_file_stats.st_size, len(writer.pages)))
 
 if __name__ == "__main__":
-    sys.exit(ma))
+    sys.exit(main())
