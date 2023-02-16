@@ -23,3 +23,10 @@ def test_filter_for_all_Is():
     result = search("I ", sentence)
 
     assert result == ["I am a human.", "I am a developer!"]
+
+def test_casing_does_not_matter():
+    sentence = "Capitalization does not matter. And capitalization does not matter again."
+
+    result = search("cap", sentence)
+
+    assert result == ["Capitalization does not matter.", "And capitalization does not matter again."]
