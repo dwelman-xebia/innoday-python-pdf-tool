@@ -1,3 +1,5 @@
+import sys
+
 from pypdf import PdfReader, PdfWriter
 from argparse import ArgumentParser
 
@@ -5,12 +7,13 @@ from commands.compress import compress_page
 from commands.remove_images import remove_images
 from commands.encryption import encrypt, decrypt
 from commands.merge import merge
+from commands.split import range_to_page_indices
 
 import os
 
 parser = ArgumentParser(description=__doc__)
 
-def main():
+def main() -> int:
 
     parser.add_argument("input_pdf_name", help="The name of the input PDF file")
 
@@ -47,6 +50,13 @@ def main():
         dest="merge_file",
         help='''The name of a file to be appended to the end of the input PDF in the format: FILE_NAME:POS, POS can be excluded or set to -1 to append''',
         nargs="+",
+        required=False,
+    )
+
+    parser.add_argument(
+        "-p", "--pages",
+        dest="pages",
+        help="Extract pages (e.g. '2,3-6')",
         required=False,
     )
 
@@ -99,6 +109,13 @@ def main():
             print("- Merging file: {} {}".format(file_name, "at position {}".format(pos) if pos > -1 else ""))
             merge_files.append((file_name, pos))
     
+    page_range = None
+    if input_parameters.pages:
+        if merge_files:
+            print("Selecting pages is incompatible with merging pages")
+            return 1
+        page_range = list(range_to_page_indices(input_parameters.pages))
+        
     if not name.endswith(".pdf"):
         print("File must end with '.pdf' extension")
         exit(-1)
@@ -120,7 +137,9 @@ def main():
 
     writer = PdfWriter()
 
-    for page in reader.pages:
+    for index, page in enumerate(reader.pages):
+        if page_range and index not in page_range:
+            continue
         if should_compress:
             page = compress_page(page)
         writer.add_page(page)
@@ -144,4 +163,4 @@ def main():
     '''.format(output_file_stats.st_size, len(writer.pages)))
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
