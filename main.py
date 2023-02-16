@@ -3,6 +3,7 @@ from argparse import ArgumentParser
 
 from compress.compress import compress_page
 from remove_images.remove_images import remove_images
+from encrypt.encrypt import encrypt
 
 import os
 
@@ -28,6 +29,12 @@ def main():
         dest="should_remove_images",
         action="store_true"
     )
+    parser.add_argument(
+        "-e", "--encrypt",
+        dest="encrypt_key",
+        help="The key to be used to encrypt the PDF file",
+        required=False,
+    )
 
     input_parameters, unknown_input_parameters = parser.parse_known_args()
 
@@ -48,6 +55,14 @@ def main():
         should_remove_images = input_parameters.should_remove_images
         if should_remove_images is True:
             print("- Remove Images Enabled")
+
+    encryption_key = ""
+    should_encrypt = False
+    if input_parameters.encrypt_key is not None:
+        encryption_key = input_parameters.encrypt_key
+        should_encrypt = True
+        print("- Encrypting with key: {}".format(encryption_key))
+
     
     if not name.endswith(".pdf"):
         print("File must end with '.pdf' extension")
@@ -73,6 +88,9 @@ def main():
 
     if should_remove_images:
        writer = remove_images(writer)
+
+    if should_encrypt:
+        writer = encrypt(writer, encryption_key)
 
     with open("{}".format(output_name), "wb") as f:
         writer.write(f)
