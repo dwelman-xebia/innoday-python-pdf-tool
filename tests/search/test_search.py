@@ -1,5 +1,8 @@
-from search.search import load_file
+from commands.search import load_file
 
 
 def test_load():
-    load_file()
+
+    text = load_file()
+
+    assert
