@@ -3,11 +3,11 @@ import sys
 from pypdf import PdfReader, PdfWriter
 from argparse import ArgumentParser
 
-from commands.compress import compress_page
-from commands.remove_images import remove_images
-from commands.encryption import encrypt, decrypt
-from commands.merge import merge
-from commands.split import range_to_page_indices
+from pdftool.compress import compress_page
+from pdftool.remove_images import remove_images
+from pdftool.encryption import encrypt, decrypt
+from pdftool.merge import merge
+from pdftool.split import range_to_page_indices
 
 import os
 

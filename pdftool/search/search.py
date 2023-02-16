@@ -3,7 +3,7 @@ import re
 
 
 def read_content():
-    reader = PdfReader("./commands/search/search.pdf")
+    reader = PdfReader("./pdftool/search/search.pdf")
     content = " ".join(page.extract_text().strip() for page in reader.pages)
     content = ' '.join(content.split())
     return split_sentences(content)

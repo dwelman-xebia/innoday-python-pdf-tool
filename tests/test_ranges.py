@@ -1,4 +1,4 @@
-from commands.split import range_to_page_indices
+from pdftool.split import range_to_page_indices
 
 def test_one_page():
     indices = list(range_to_page_indices("5"))

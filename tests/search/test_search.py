@@ -1,4 +1,4 @@
-from commands.search.search import read_content
+from pdftool.search.search import read_content
 
 
 def test_load():
