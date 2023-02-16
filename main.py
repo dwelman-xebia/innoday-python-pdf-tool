@@ -13,7 +13,7 @@ import os
 
 parser = ArgumentParser(description=__doc__)
 
-def main() -> int:
+def main(args) -> int:
 
     parser.add_argument("input_pdf_name", help="The name of the input PDF file")
 
@@ -60,7 +60,7 @@ def main() -> int:
         required=False,
     )
 
-    input_parameters, unknown_input_parameters = parser.parse_known_args()
+    input_parameters, _unknown_input_parameters = parser.parse_known_args(args)
 
     name = input_parameters.input_pdf_name
     output_name = output_name = name + "-output"
@@ -102,7 +102,7 @@ def main() -> int:
             file_name = x[0]
             if not file_name.endswith(".pdf"):
                 print("{} must end with '.pdf' extension".format(file_name))
-                exit(-1)
+                return 1
             pos = -1
             if len(x) > 1:
                 pos = int(x[1])
@@ -121,7 +121,7 @@ def main() -> int:
         
     if not name.endswith(".pdf"):
         print("File must end with '.pdf' extension")
-        exit(-1)
+        return 1
 
     if not output_name.endswith(".pdf"):
         output_name += ".pdf"
@@ -166,4 +166,4 @@ def main() -> int:
     '''.format(output_file_stats.st_size, len(writer.pages)))
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv[1:]))
