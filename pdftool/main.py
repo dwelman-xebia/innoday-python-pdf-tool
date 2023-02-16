@@ -1,16 +1,19 @@
+import sys
+
 from pypdf import PdfReader, PdfWriter
 from argparse import ArgumentParser
 
-from commands.compress import compress_page
-from commands.remove_images import remove_images
-from commands.encryption import encrypt, decrypt
-from commands.merge import merge
+from pdftool.compress import compress_page
+from pdftool.remove_images import remove_images
+from pdftool.encryption import encrypt, decrypt
+from pdftool.merge import merge
+from pdftool.split import range_to_page_indices
 
 import os
 
 parser = ArgumentParser(description=__doc__)
 
-def main():
+def main(args=sys.argv[1:]) -> int:
 
     parser.add_argument("input_pdf_name", help="The name of the input PDF file")
 
@@ -45,12 +48,25 @@ def main():
     parser.add_argument(
         "-m", "--merge",
         dest="merge_file",
-        help='''The name of a file to be appended to the end of the input PDF in the format: FILE_NAME:POS, POS can be excluded or set to -1 to append''',
+        help='''The name of a file to be merged into the input file in the format FILE_NAME:POSITION:PAGES, POSITION can be excluded or set to -1 to append to the end, specific PAGES can be specified (e.g. 1,2,6-10)''',
         nargs="+",
         required=False,
     )
 
-    input_parameters, unknown_input_parameters = parser.parse_known_args()
+    parser.add_argument(
+        "-p", "--pages",
+        dest="pages",
+        help="Extract pages (e.g. '2,3-6')",
+        required=False,
+    )
+    parser.add_argument(
+        "-r", "--remove",
+        dest="remove_pages",
+        help="Remove pages (e.g. '2,3-6')",
+        required=False,
+    )
+
+    input_parameters, _unknown_input_parameters = parser.parse_known_args(args)
 
     name = input_parameters.input_pdf_name
     output_name = output_name = name + "-output"
@@ -92,16 +108,36 @@ def main():
             file_name = x[0]
             if not file_name.endswith(".pdf"):
                 print("{} must end with '.pdf' extension".format(file_name))
-                exit(-1)
+                return 1
             pos = -1
             if len(x) > 1:
                 pos = int(x[1])
+            pages = []
+            if len(x) > 2:
+                pages = list(range_to_page_indices(x[2]))
             print("- Merging file: {} {}".format(file_name, "at position {}".format(pos) if pos > -1 else ""))
-            merge_files.append((file_name, pos))
+            merge_files.append((file_name, pos, pages))
     
+    remove_range = None
+    if input_parameters.remove_pages:
+        if merge_files:
+            print("Removing pages is incompatible with merging pages")
+            return 1
+        remove_range = list(range_to_page_indices(input_parameters.remove_pages))
+
+    page_range = None
+    if input_parameters.pages:
+        if merge_files:
+            print("Selecting pages is incompatible with merging pages")
+            return 1
+        if remove_range:
+            print("Selecting pages is incompatible with removing pages")
+            return 1
+        page_range = list(range_to_page_indices(input_parameters.pages))
+        
     if not name.endswith(".pdf"):
         print("File must end with '.pdf' extension")
-        exit(-1)
+        return 1
 
     if not output_name.endswith(".pdf"):
         output_name += ".pdf"
@@ -120,13 +156,17 @@ def main():
 
     writer = PdfWriter()
 
-    for page in reader.pages:
+    for index, page in enumerate(reader.pages):
+        if page_range and index not in page_range:
+            continue
+        if remove_range and index in remove_range:
+            continue
         if should_compress:
             page = compress_page(page)
         writer.add_page(page)
 
-    for file, pos in merge_files:
-        writer = merge(writer, file, pos)
+    for file, pos, pages in merge_files:
+        writer = merge(writer, file, pos, pages)
 
     if should_remove_images:
         writer = remove_images(writer)
@@ -144,4 +184,4 @@ def main():
     '''.format(output_file_stats.st_size, len(writer.pages)))
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

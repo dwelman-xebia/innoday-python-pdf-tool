@@ -1,6 +1,6 @@
 from typing import List
 
-from commands.search import search
+from pdftool.search import search
 from pypdf import PdfReader
 
 
